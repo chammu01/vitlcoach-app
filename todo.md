@@ -33,3 +33,12 @@
 
 ## Bug Fixes
 - [x] Fix DashboardScreen: Today's Workout card content not fully visible due to Upgrade prompt layout issue
+
+## Capacitor Mobile Setup
+- [x] Install @capacitor/core, @capacitor/cli, @capacitor/ios, @capacitor/android
+- [x] Create capacitor.config.ts with app ID, name, and webDir pointing to dist/public
+- [x] Update vite build output to match Capacitor webDir
+- [x] Add npx cap add ios and npx cap add android platforms
+- [x] Add PWA manifest.json with VITL app metadata and icons
+- [x] Add app icon and splash screen assets (all sizes 72–1024px generated)
+- [x] Write MOBILE_BUILD.md with step-by-step Xcode/Android Studio build and store submission guide
