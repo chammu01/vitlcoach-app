@@ -30,3 +30,6 @@
 - [x] Add "Upgrade to Pro" paywall prompt in ChatScreen for unlimited AI coaching (free limit: 3 messages/session)
 - [x] Add glowing PRO/ELITE subscription badge pill next to avatar in DashboardScreen header
 - [x] All 8 vitest tests passing (free trial is a server-side param, no new test needed)
+
+## Bug Fixes
+- [x] Fix DashboardScreen: Today's Workout card content not fully visible due to Upgrade prompt layout issue

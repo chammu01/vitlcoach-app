@@ -298,7 +298,7 @@ export default function DashboardScreen({ profile, onNavigate }: Props) {
         {!isPro && <UpgradePrompt onNavigate={onNavigate} />}
 
         {/* Today's Workout */}
-        <div style={{ background: "var(--vitl-surface)", border: "1px solid var(--vitl-border)", borderRadius: 16, padding: 20, position: "relative", overflow: "hidden" }}>
+        <div style={{ background: "var(--vitl-surface)", border: "1px solid var(--vitl-border)", borderRadius: 16, padding: 20, position: "relative" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
             <div>
               <div style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--vitl-muted)", marginBottom: 4 }}>Today's Workout</div>
