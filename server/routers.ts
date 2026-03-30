@@ -72,6 +72,13 @@ export const appRouter = router({
           customer_email: !customerId ? (ctx.user.email ?? undefined) : undefined,
           line_items: [{ price: plan.stripePriceId, quantity: 1 }],
           allow_promotion_codes: true,
+          subscription_data: {
+            trial_period_days: 7,
+            metadata: {
+              user_id: ctx.user.id.toString(),
+              plan_id: plan.id,
+            },
+          },
           client_reference_id: ctx.user.id.toString(),
           metadata: {
             user_id: ctx.user.id.toString(),

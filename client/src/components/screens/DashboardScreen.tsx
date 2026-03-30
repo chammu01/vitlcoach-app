@@ -2,9 +2,12 @@
  * VITL — DashboardScreen
  * Design: Cyberpunk Terminal Fitness
  * Live vitals, today's workout, nutrition, AI insight
+ * + Subscription badge in header
+ * + Upgrade prompt for locked wearable/advanced analytics features
  */
 import { useState } from "react";
 import { UserProfile, Screen } from "@/pages/Home";
+import { useSubscription } from "@/hooks/useSubscription";
 
 interface Props {
   profile: UserProfile;
@@ -41,6 +44,101 @@ function SparkBar({ heights, color }: { heights: number[]; color: string }) {
           }}
         />
       ))}
+    </div>
+  );
+}
+
+/** Glowing plan badge shown next to the user's avatar in the header */
+function PlanBadge({ plan }: { plan: string }) {
+  const config: Record<string, { label: string; color: string; bg: string; border: string }> = {
+    basic: {
+      label: "BASIC",
+      color: "var(--vitl-accent)",
+      bg: "rgba(200,255,87,0.1)",
+      border: "rgba(200,255,87,0.3)",
+    },
+    pro: {
+      label: "PRO",
+      color: "var(--vitl-accent2)",
+      bg: "rgba(87,255,204,0.1)",
+      border: "rgba(87,255,204,0.3)",
+    },
+    elite: {
+      label: "ELITE",
+      color: "var(--vitl-accent3)",
+      bg: "rgba(255,87,135,0.1)",
+      border: "rgba(255,87,135,0.3)",
+    },
+  };
+
+  const c = config[plan] ?? config.basic;
+
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        padding: "3px 10px",
+        borderRadius: 100,
+        fontSize: 9,
+        fontFamily: "'DM Mono', monospace",
+        fontWeight: 700,
+        letterSpacing: "0.12em",
+        color: c.color,
+        background: c.bg,
+        border: `1px solid ${c.border}`,
+        boxShadow: `0 0 8px ${c.border}`,
+        marginLeft: 8,
+        verticalAlign: "middle",
+      }}
+    >
+      {c.label}
+    </span>
+  );
+}
+
+/** Upgrade prompt card shown for locked Pro/Elite features */
+function UpgradePrompt({ onNavigate }: { onNavigate: (s: Screen) => void }) {
+  return (
+    <div
+      style={{
+        background: "linear-gradient(135deg, rgba(255,87,135,0.08), rgba(200,255,87,0.04))",
+        border: "1px solid rgba(255,87,135,0.2)",
+        borderRadius: 16,
+        padding: 20,
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+      }}
+    >
+      <div style={{ fontSize: 28, flexShrink: 0 }}>🔒</div>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 12, fontWeight: 700, marginBottom: 4 }}>
+          Unlock Advanced Analytics
+        </div>
+        <div style={{ fontSize: 11, color: "var(--vitl-muted)", lineHeight: 1.6 }}>
+          Real-time HRV, wearable sync & body composition tracking are available on Pro and Elite plans.
+        </div>
+      </div>
+      <button
+        onClick={() => onNavigate("pricing")}
+        style={{
+          flexShrink: 0,
+          padding: "8px 14px",
+          borderRadius: 100,
+          border: "none",
+          background: "var(--vitl-accent3)",
+          color: "#000",
+          fontFamily: "'DM Mono', monospace",
+          fontSize: 10,
+          fontWeight: 700,
+          letterSpacing: "0.08em",
+          cursor: "pointer",
+          whiteSpace: "nowrap",
+        }}
+      >
+        Upgrade →
+      </button>
     </div>
   );
 }
@@ -104,6 +202,7 @@ const INITIAL_WORKOUT = [
 
 export default function DashboardScreen({ profile, onNavigate }: Props) {
   const [workout, setWorkout] = useState(INITIAL_WORKOUT);
+  const { plan, isActive, isPro } = useSubscription();
 
   const doneCount = workout.filter(w => w.done).length;
   const pct = Math.round((doneCount / workout.length) * 100);
@@ -123,8 +222,10 @@ export default function DashboardScreen({ profile, onNavigate }: Props) {
       {/* Header */}
       <div style={{ padding: "20px 20px 0", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <div>
-          <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em" }}>
-            Hey, <span style={{ color: "var(--vitl-accent)" }}>{profile.name}</span> 👋
+          <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em", display: "flex", alignItems: "center", flexWrap: "wrap", gap: 4 }}>
+            Hey, <span style={{ color: "var(--vitl-accent)" }}>&nbsp;{profile.name}</span> 👋
+            {/* Subscription badge — shown only when user has an active plan */}
+            {isActive && plan && <PlanBadge plan={plan} />}
           </div>
           <div style={{ fontSize: 10, color: "var(--vitl-muted)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 3 }}>
             {today}
@@ -192,6 +293,9 @@ export default function DashboardScreen({ profile, onNavigate }: Props) {
             ))}
           </div>
         </div>
+
+        {/* Upgrade prompt — shown for non-Pro users */}
+        {!isPro && <UpgradePrompt onNavigate={onNavigate} />}
 
         {/* Today's Workout */}
         <div style={{ background: "var(--vitl-surface)", border: "1px solid var(--vitl-border)", borderRadius: 16, padding: 20, position: "relative", overflow: "hidden" }}>

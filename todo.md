@@ -22,3 +22,11 @@
 - [x] Wire PricingScreen Subscribe buttons to checkout session mutation
 - [x] Add success/cancel redirect pages (handled via URL params on return)
 - [x] Write vitest tests for Stripe webhook handler (8 tests, all passing)
+
+## Feature Enhancements
+- [x] Add trial_period_days: 7 to stripe.checkout.sessions.create() in server/routers.ts
+- [x] Build useSubscription hook to expose plan/status to frontend components
+- [x] Add "Upgrade to Pro" paywall prompt in DashboardScreen for locked features
+- [x] Add "Upgrade to Pro" paywall prompt in ChatScreen for unlimited AI coaching (free limit: 3 messages/session)
+- [x] Add glowing PRO/ELITE subscription badge pill next to avatar in DashboardScreen header
+- [x] All 8 vitest tests passing (free trial is a server-side param, no new test needed)

@@ -5,6 +5,7 @@
  */
 import { useState, useRef, useEffect } from "react";
 import { UserProfile, Screen } from "@/pages/Home";
+import { useSubscription } from "@/hooks/useSubscription";
 
 interface Props {
   profile: UserProfile;
@@ -71,13 +72,20 @@ function now() {
   return new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 }
 
-export default function ChatScreen({ profile }: Props) {
+const FREE_MESSAGE_LIMIT = 3;
+
+export default function ChatScreen({ profile, onNavigate }: Props) {
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const [aiIdx, setAiIdx] = useState(0);
   const [activeChip, setActiveChip] = useState(0);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const { isPro } = useSubscription();
+
+  // Count only messages sent THIS session (not the pre-seeded history)
+  const [sessionSentCount, setSessionSentCount] = useState(0);
+  const isLimitReached = !isPro && sessionSentCount >= FREE_MESSAGE_LIMIT;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -85,6 +93,8 @@ export default function ChatScreen({ profile }: Props) {
 
   function sendMessage(text: string) {
     if (!text.trim()) return;
+    if (isLimitReached) return;
+    setSessionSentCount(c => c + 1);
     const userMsg: Message = { role: "user", text, time: now() };
     setMessages(prev => [...prev, userMsg]);
     setInput("");
@@ -224,6 +234,50 @@ export default function ChatScreen({ profile }: Props) {
             </div>
           </div>
         )}
+        {/* Upgrade prompt — shown when free message limit is reached */}
+        {isLimitReached && (
+          <div
+            style={{
+              margin: "8px 0",
+              background: "linear-gradient(135deg, rgba(255,87,135,0.1), rgba(200,255,87,0.04))",
+              border: "1px solid rgba(255,87,135,0.25)",
+              borderRadius: 16,
+              padding: "16px 18px",
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+            }}
+          >
+            <div style={{ fontSize: 24, flexShrink: 0 }}>🔒</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 11, fontWeight: 700, marginBottom: 3 }}>
+                Free limit reached
+              </div>
+              <div style={{ fontSize: 11, color: "var(--vitl-muted)", lineHeight: 1.5 }}>
+                Upgrade to Pro for unlimited AI coaching messages.
+              </div>
+            </div>
+            <button
+              onClick={() => onNavigate("pricing")}
+              style={{
+                flexShrink: 0,
+                padding: "8px 14px",
+                borderRadius: 100,
+                border: "none",
+                background: "var(--vitl-accent3)",
+                color: "#000",
+                fontFamily: "'DM Mono', monospace",
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Upgrade →
+            </button>
+          </div>
+        )}
         <div ref={bottomRef} />
       </div>
 
@@ -232,40 +286,44 @@ export default function ChatScreen({ profile }: Props) {
         padding: "12px 16px", background: "var(--vitl-surface)",
         borderTop: "1px solid var(--vitl-border)", flexShrink: 0,
       }}>
-        {/* Quick replies */}
-        <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 10, paddingBottom: 2 }}>
+        {/* Quick replies — disabled when limit reached */}
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 10, paddingBottom: 2, opacity: isLimitReached ? 0.35 : 1, pointerEvents: isLimitReached ? "none" : "auto" }}>
           {QUICK_REPLIES.map(qr => (
             <button
               key={qr}
               onClick={() => sendMessage(QUICK_REPLY_TEXTS[qr])}
+              disabled={isLimitReached}
               style={{
                 padding: "6px 14px", borderRadius: 100, fontSize: 11,
-                whiteSpace: "nowrap", cursor: "pointer",
+                whiteSpace: "nowrap", cursor: isLimitReached ? "not-allowed" : "pointer",
                 background: "var(--vitl-surface2)", border: "1px solid var(--vitl-border)",
                 color: "var(--vitl-text)", fontFamily: "'DM Mono', monospace",
                 transition: "all 0.2s",
               }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--vitl-border2)")}
+              onMouseEnter={e => !isLimitReached && (e.currentTarget.style.borderColor = "var(--vitl-border2)")}
               onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--vitl-border)")}
             >
               {qr}
             </button>
           ))}
         </div>
-        {/* Input row */}
+        {/* Input row — disabled when limit reached */}
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           <input
             value={input}
+            disabled={isLimitReached}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && sendMessage(input)}
-            placeholder="Ask your AI coach..."
+            placeholder={isLimitReached ? "Upgrade to Pro to continue chatting..." : "Ask your AI coach..."}
             style={{
-              flex: 1, background: "var(--vitl-surface2)", border: "1px solid var(--vitl-border)",
+              flex: 1, background: isLimitReached ? "rgba(255,255,255,0.03)" : "var(--vitl-surface2)",
+              border: `1px solid ${isLimitReached ? "rgba(255,255,255,0.06)" : "var(--vitl-border)"}`,
               borderRadius: 12, padding: "12px 16px", fontFamily: "'DM Mono', monospace",
-              fontSize: 13, color: "var(--vitl-text)", outline: "none",
+              fontSize: 13, color: isLimitReached ? "var(--vitl-muted)" : "var(--vitl-text)",
+              outline: "none", cursor: isLimitReached ? "not-allowed" : "text",
             }}
-            onFocus={e => (e.target.style.borderColor = "rgba(200,255,87,0.3)")}
-            onBlur={e => (e.target.style.borderColor = "var(--vitl-border)")}
+            onFocus={e => !isLimitReached && (e.target.style.borderColor = "rgba(200,255,87,0.3)")}
+            onBlur={e => (e.target.style.borderColor = isLimitReached ? "rgba(255,255,255,0.06)" : "var(--vitl-border)")}
           />
           <button
             onClick={() => sendMessage(input)}
