@@ -8,8 +8,8 @@ const NAV_ITEMS: { screen: Screen; icon: string; label: string }[] = [
   { screen: "dashboard", icon: "🏠", label: "Home" },
   { screen: "chat", icon: "🤖", label: "Coach" },
   { screen: "wearable", icon: "⌚", label: "Sync" },
-  { screen: "notifications", icon: "🔔", label: "Alerts" },
   { screen: "progress", icon: "📈", label: "Progress" },
+  { screen: "pricing", icon: "💳", label: "Plans" },
 ];
 
 interface Props {
@@ -28,7 +28,7 @@ export default function BottomNav({ current, onNavigate }: Props) {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-around",
-        padding: "0 8px",
+        padding: "0 4px",
         position: "relative",
         zIndex: 100,
       }}
@@ -44,7 +44,7 @@ export default function BottomNav({ current, onNavigate }: Props) {
               flexDirection: "column",
               alignItems: "center",
               gap: 4,
-              padding: "8px 16px",
+              padding: "8px 10px",
               borderRadius: 12,
               cursor: "pointer",
               border: "none",
@@ -56,7 +56,7 @@ export default function BottomNav({ current, onNavigate }: Props) {
           >
             <span
               style={{
-                fontSize: 20,
+                fontSize: 18,
                 transition: "transform 0.2s",
                 transform: active ? "scale(1.15)" : "scale(1)",
                 display: "block",
@@ -66,8 +66,8 @@ export default function BottomNav({ current, onNavigate }: Props) {
             </span>
             <span
               style={{
-                fontSize: 9,
-                letterSpacing: "0.1em",
+                fontSize: 8,
+                letterSpacing: "0.08em",
                 textTransform: "uppercase",
               }}
             >

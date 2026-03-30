@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1774905323635,
+      "tag": "0000_clear_lightspeed",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1774905472291,
+      "tag": "0001_empty_expediter",
+      "breakpoints": true
+    }
+  ]
+}
